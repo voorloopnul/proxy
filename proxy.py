@@ -42,19 +42,19 @@ class TheServer:
             time.sleep(delay)
             ss = select.select
             inputready, outputready, exceptready = ss(self.input_list, [], [])
-            for self.s in inputready:
-                if self.s == self.server:
-                    self.on_accept()
+            for s in inputready:
+                if s == self.server:
+                    self.on_accept(s)
                     break
 
-                self.data = self.s.recv(buffer_size)
+                self.data = s.recv(buffer_size)
                 if len(self.data) == 0:
-                    self.on_close()
+                    self.on_close(s)
                     break
                 else:
-                    self.on_recv()
+                    self.on_recv(s)
 
-    def on_accept(self):
+    def on_accept(self, s):
         forward = Forward().start(forward_to[0], forward_to[1])
         clientsock, clientaddr = self.server.accept()
         if forward:
@@ -67,25 +67,25 @@ class TheServer:
             print("Can't establish a connection with remote server. Closing connection with client side {0}".format(clientaddr))
             clientsock.close()
 
-    def on_close(self):
-        print("{0} has disconnected".format(self.s.getpeername()))
+    def on_close(self, s):
+        print("{0} has disconnected".format(s.getpeername()))
         #remove objects from input_list
-        self.input_list.remove(self.s)
-        self.input_list.remove(self.channel[self.s])
-        out = self.channel[self.s]
+        self.input_list.remove(s)
+        self.input_list.remove(self.channel[s])
+        out = self.channel[s]
         # close the connection with client
-        self.channel[out].close()  # equivalent to do self.s.close()
+        self.channel[out].close()  
         # close the connection with remote server
-        self.channel[self.s].close()
+        self.channel[s].close()
         # delete both objects from channel dict
         del self.channel[out]
-        del self.channel[self.s]
+        del self.channel[s]
 
-    def on_recv(self):
+    def on_recv(self, s):
         data = self.data
         # here we can parse and/or modify the data before send forward
         print(data)
-        self.channel[self.s].send(data)
+        self.channel[s].send(data)
 
 if __name__ == '__main__':
         server = TheServer('', 9090)
