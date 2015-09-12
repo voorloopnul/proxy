@@ -8,10 +8,7 @@ import select
 import time
 import sys
 
-# Changing the buffer_size and delay, you can improve the speed and bandwidth.
-# But when buffer get to high or delay go too down, you can broke things
 buffer_size = 4096
-delay = 0.0001
 forward_to = ('www.voorloopnul.com', 80)
 
 class Forward:
@@ -39,7 +36,6 @@ class TheServer:
     def main_loop(self):
         self.input_list.append(self.server)
         while 1:
-            time.sleep(delay)
             ss = select.select
             inputready, outputready, exceptready = ss(self.input_list, [], [])
             for s in inputready:
